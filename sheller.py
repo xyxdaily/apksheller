@@ -15,7 +15,7 @@ import sys
 
 
 stCurrentPt = os.path.abspath(__file__).replace(os.path.basename(__file__), "")
-stApkToolPt = os.path.join(stCurrentPt, 'tools', 'apktool_2.5.0.jar')
+stApkToolPt = os.path.join(stCurrentPt, 'tools', 'apktool_2.9.3.jar')
 stShellAppPt = os.path.join(stCurrentPt, 'shellApplicationSourceCode')
 staaptPt = os.path.join(stCurrentPt, 'tools', 'aapt.exe')
 stAndroidJarlibPt = os.path.join(stCurrentPt, 'tools', 'android.jar')
@@ -40,14 +40,14 @@ def add_srcDexToShellDex(srcDex, shellDex):
     liAllDt.extend(shellData)
     # 加密原DEX
     for i in liSrcDexDt:  
-        liAllDt.append(i ^ 0xff)
+        liAllDt.append(i ^ inKey)
 
     iSrcDexLen = len(liSrcDexDt)
     liSrcDexLen = intToSmalEndian(iSrcDexLen)
     liSrcDexLen.reverse()
     # 加密原DEX长度
     for i in liSrcDexLen:
-        liAllDt.append(i ^ 0xff)
+        liAllDt.append(i ^ inKey)
 
     # 计算合成后DEX文件的checksum、signature、file_size
     # 更改文件头
@@ -120,12 +120,16 @@ def replaceTag(fp, stValue):
     root = dom.documentElement
     app = root.getElementsByTagName('application')[0]
     app.setAttribute("android:name", stValue)
+    # bugfix INSTALL_FAILED_INVALID_APK: Failed to extract native libraries, res=-2
+    app.setAttribute("android:extractNativeLibs", 'true')
+    app.setAttribute('android:debuggable', 'true')
+    print('[*] replace android:extractNativeLibs -> ' + app.getAttribute("android:extractNativeLibs"))
     with open(stAXMLFp, "w", encoding='UTF-8') as f:
         dom.writexml(f, encoding='UTF-8')
     stDecompDp = os.path.join(stCurrentPt, fp + "decompile")
     # 修复PNG文件BUG
-
     PngBug(stDecompDp)
+    
     cmd = []
     cmd.append('java')
     cmd.append('-jar')
@@ -172,11 +176,8 @@ def compileShellDex():
     licmd2.append(stAndroidJarlibPt)
     licmd2.append("-d")
     licmd2.append(stCurrentPt)
-    licmd2.append(os.path.join(stCurrentPt, 'shellApplicationSourceCode', 'java', 'cn', 'yongye', 'stub', '*.java'))
+    licmd2.append(os.path.join(stCurrentPt,  'shellApplicationSourceCode', 'java', 'cn', 'yongye', 'stub', '*.java'))
     licmd2.append(os.path.join(stCurrentPt, 'shellApplicationSourceCode', 'java', 'cn', 'yongye', 'stub', 'common', '*.java'))
-    # licmd2.append(stCurrentPt + "\shellApplicationSourceCode\java\cn\yongye\stub\*.java")
-    # licmd2.append(stCurrentPt + "\shellApplicationSourceCode\java\cn\yongye\stub\common\*.java")
-    # check_call(licmd2, shell=False)
     check_call(' '.join(licmd2), shell=True)
 
     licmd3 = []
@@ -184,12 +185,9 @@ def compileShellDex():
     licmd3.append("-jar")
     licmd3.append(stdxJarPt)
     licmd3.append("--dex")
-    licmd3.append("--output=" + os.path.join(stCurrentPt, "shell.dex"))
+    licmd3.append("--output=" + stCurrentPt + r"\shell.dex")
     licmd3.append(os.path.join('cn', 'yongye', 'stub', '*.class'))
     licmd3.append(os.path.join('cn', 'yongye', 'stub', 'common', '*.class'))
-    # licmd3.append("cn\yongye\stub\*.class")
-    # licmd3.append("cn\yongye\stub\common\*.class")
-    # check_call(licmd3)
     check_call(' '.join(licmd3), shell=True)
 
     shutil.rmtree("cn")
@@ -266,7 +264,7 @@ if __name__ == "__main__":
         """
         1. 第一步：确定加密算法
         """
-        inKey = 0xFF
+        inKey = 0xff
         print("[*] 确定加密解密算法，异或: {}".format(str(inKey)))
 
         """

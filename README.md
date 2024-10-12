@@ -82,13 +82,44 @@ python -f xxx.apk
 
 中途解决该问题时，曾尝试使用[AXMLEditor](https://github.com/fourbrother/AXMLEditor)修改二进制Androidmanifest.xml的开源工具直接修改，然后想绕过编译资源步骤，实际不能成功，因为更改过后的application name字段在编译资源过程中，会被记录下来，而直接修改导致没有被记录，android系统是识别不到修改后的这个字段值
 
+# 定制版内容（付费）
+
+[x] 多DEX加密
+
+[x] APK包伪加密
+
+[x] 部分资源加密
+
+[x] 包名随机
+
+[x] 高级加密算法
+
+[x] ...
+
+
 # 参考
 
 [1] [Dex简单保护](https://xz.aliyun.com/t/5789)
 
 [2] [ DexShell](https://github.com/Herrrb/DexShell)
 
+# 联系
 
-![支付宝](/images/zfb.png)
+vx: xcc1014885794
 
-![微信](/images/wx.png)
+# 赞助
+
+<details>
+<summary>
+	<mark><font size=5 color=darkred>微信捐赠</font></mark>
+</summary>
+<img src="https://github.com/yongyecc/apksheller/blob/master/images/wx.jpg"/>
+</details>
+
+<details>
+<summary>
+	<mark><font size=5 color=darkred>支付宝捐赠</font></mark>
+</summary>
+<img src="https://github.com/yongyecc/apksheller/blob/master/images/zfb.jpg"/>
+</details>
+
